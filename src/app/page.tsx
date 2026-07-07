@@ -48,6 +48,13 @@ const formatDateStr = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+// Parse date string in format YYYY-MM-DD to local Date object (avoids timezone shift bugs)
+const parseLocalDate = (dateStr: string): Date => {
+  if (!dateStr) return new Date();
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
 export default function Home() {
   // App states
   const [deeds, setDeeds] = useState<GoodDeed[]>([]);
@@ -61,6 +68,7 @@ export default function Home() {
   // UI states
   const [isMounted, setIsMounted] = useState(false);
   const [activeDeed, setActiveDeed] = useState<GoodDeed | null>(null);
+  const [selectedCategoryForStatsList, setSelectedCategoryForStatsList] = useState<Category | null>(null);
   const [currentQuote, setCurrentQuote] = useState(SUPPORTIVE_QUOTES[0]);
   const [showQuoteBubble, setShowQuoteBubble] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -120,7 +128,7 @@ export default function Home() {
   // Day navigation helper
   const handleDayOffset = (offset: number) => {
     if (!selectedDate) return;
-    const current = new Date(selectedDate);
+    const current = parseLocalDate(selectedDate);
     current.setDate(current.getDate() + offset);
     setSelectedDate(formatDateStr(current));
   };
@@ -254,7 +262,7 @@ export default function Home() {
   const dayRibbon = useMemo(() => {
     if (!selectedDate) return [];
     
-    const centerDate = new Date(selectedDate);
+    const centerDate = parseLocalDate(selectedDate);
     const ribbon = [];
     const todayStr = formatDateStr(new Date());
 
@@ -385,8 +393,9 @@ export default function Home() {
       };
     }
 
-    const currentYear = new Date(selectedDate).getFullYear();
-    const currentMonth = new Date(selectedDate).getMonth(); // 0-indexed
+    const centerDate = parseLocalDate(selectedDate);
+    const currentYear = centerDate.getFullYear();
+    const currentMonth = centerDate.getMonth(); // 0-indexed
 
     const monthNames = [
       "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
@@ -483,6 +492,21 @@ export default function Home() {
     };
   }, [deeds, selectedDate, isMounted]);
 
+  // Memo to get achievements for the selected category in the current month (Stats view detail)
+  const statsCategoryDeeds = useMemo(() => {
+    if (!selectedCategoryForStatsList || !selectedDate) return [];
+    const centerDate = parseLocalDate(selectedDate);
+    const currentYear = centerDate.getFullYear();
+    const currentMonth = centerDate.getMonth();
+    
+    return deeds.filter(deed => {
+      const deedDate = parseLocalDate(deed.date);
+      const isSameMonth = deedDate.getFullYear() === currentYear && deedDate.getMonth() === currentMonth;
+      const hasCategory = deed.category_ids.includes(selectedCategoryForStatsList.id);
+      return isSameMonth && hasCategory;
+    });
+  }, [deeds, selectedCategoryForStatsList, selectedDate]);
+
   // Form input category string for border highlight
   const activeInputGlow = useMemo(() => {
     if (selectedCategories.length === 0) return "border-white/10";
@@ -574,7 +598,7 @@ export default function Home() {
           
           {/* TRACKER TAB */}
           {activeTab === "tracker" && (
-            <div className="flex flex-col flex-1 pb-24">
+            <div className="flex flex-col flex-1 pb-6">
               
               {/* Day Swiper Ribbon */}
               <div className="py-3 px-4 border-b border-white/5 bg-[#09080f]/20 shrink-0">
@@ -855,10 +879,13 @@ export default function Home() {
 
               {/* Monthly Stats Counters */}
               <div className="flex flex-col gap-2.5">
-                <span className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase flex items-center gap-1.5">
-                  <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
-                  РЕЗУЛЬТАТЫ ЗА МЕСЯЦ
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
+                    РЕЗУЛЬТАТЫ ЗА МЕСЯЦ
+                  </span>
+                  <span className="text-[8px] text-white/20 italic">нажмите на категорию</span>
+                </div>
                 
                 {/* Total achievements card */}
                 <div className="p-3.5 rounded-xl border border-purple-500/20 bg-gradient-to-r from-purple-950/20 to-cyan-950/20 flex items-center justify-between neon-glow-combo">
@@ -915,7 +942,7 @@ export default function Home() {
 
         {/* 3. Sticky Glass Input Bar */}
         {activeTab === "tracker" && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#09080f]/75 backdrop-blur-lg border-t border-white/5 z-40 shrink-0">
+          <div className="relative p-4 bg-[#09080f]/90 backdrop-blur-lg border-t border-white/5 z-40 shrink-0">
             <form onSubmit={handleSubmitDeed} className="flex flex-col gap-3">
               
               {/* Category Quick Selector Buttons */}
@@ -988,7 +1015,7 @@ export default function Home() {
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-white/40" />
                   <span className="text-[10px] text-white/50 tracking-wider font-bold">
-                    {new Date(activeDeed.date).toLocaleDateString("ru-RU", { 
+                    {parseLocalDate(activeDeed.date).toLocaleDateString("ru-RU", { 
                       day: "numeric", 
                       month: "long", 
                       year: "numeric" 
@@ -1127,6 +1154,72 @@ export default function Home() {
             </div>
 
           </div>
+        </div>
+
+        {/* 6. STATS CATEGORY DEEDS MODAL */}
+        <div className={`absolute inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 flex items-end justify-center ${
+          selectedCategoryForStatsList ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}>
+          {selectedCategoryForStatsList && (
+            <div className={`w-full max-w-md p-6 bg-[#0c0a18] border-t border-white/10 rounded-t-3xl shadow-[0_-15px_30px_rgba(0,0,0,0.5)] transition-transform duration-300 transform flex flex-col gap-4 text-left max-h-[80%] ${
+              selectedCategoryForStatsList ? "translate-y-0" : "translate-y-full"
+            }`}>
+              
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold" style={{ color: selectedCategoryForStatsList.color }}>
+                    {selectedCategoryForStatsList.icon}
+                  </span>
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">
+                    {selectedCategoryForStatsList.name}
+                  </span>
+                  <span className="text-[10px] text-white/30 font-semibold">
+                    ({statsCategoryDeeds.length})
+                  </span>
+                </div>
+                
+                <button 
+                  onClick={() => setSelectedCategoryForStatsList(null)}
+                  className="p-1 text-white/40 hover:text-white rounded-full hover:bg-white/5 active:scale-95 transition-all"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Deeds List */}
+              <div className="flex-1 overflow-y-auto flex flex-col gap-2.5 pr-1 my-2">
+                {statsCategoryDeeds.map(deed => (
+                  <div 
+                    key={deed.id}
+                    className="p-3 rounded-xl border border-white/5 bg-white/2 flex flex-col gap-1.5"
+                    style={{ borderLeft: `3px solid ${selectedCategoryForStatsList.color}` }}
+                  >
+                    <span className="text-[8px] text-white/40 font-bold">
+                      {parseLocalDate(deed.date).toLocaleDateString("ru-RU", { 
+                        day: "numeric", 
+                        month: "short"
+                      })}
+                    </span>
+                    <p className="text-xs text-white leading-relaxed font-mono">
+                      {deed.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <div className="pt-2 border-t border-white/5 text-center">
+                <button
+                  onClick={() => setSelectedCategoryForStatsList(null)}
+                  className="w-full py-2 px-4 bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold tracking-widest rounded-xl active:scale-98 transition-all"
+                >
+                  ЗАКРЫТЬ
+                </button>
+              </div>
+
+            </div>
+          )}
         </div>
 
       </div>
