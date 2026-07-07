@@ -1160,40 +1160,43 @@ export default function Home() {
         <div className={`absolute inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 flex items-end justify-center ${
           selectedCategoryForStatsList ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}>
-          {selectedCategoryForStatsList && (
-            <div className={`w-full max-w-md p-6 bg-[#0c0a18] border-t border-white/10 rounded-t-3xl shadow-[0_-15px_30px_rgba(0,0,0,0.5)] transition-transform duration-300 transform flex flex-col gap-4 text-left max-h-[80%] ${
-              selectedCategoryForStatsList ? "translate-y-0" : "translate-y-full"
-            }`}>
-              
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold" style={{ color: selectedCategoryForStatsList.color }}>
-                    {selectedCategoryForStatsList.icon}
-                  </span>
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">
-                    {selectedCategoryForStatsList.name}
-                  </span>
-                  <span className="text-[10px] text-white/30 font-semibold">
-                    ({statsCategoryDeeds.length})
-                  </span>
-                </div>
-                
-                <button 
-                  onClick={() => setSelectedCategoryForStatsList(null)}
-                  className="p-1 text-white/40 hover:text-white rounded-full hover:bg-white/5 active:scale-95 transition-all"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+          <div className={`w-full max-w-md p-6 bg-[#0c0a18] border-t border-white/10 rounded-t-3xl shadow-[0_-15px_30px_rgba(0,0,0,0.5)] transition-transform duration-300 transform flex flex-col gap-4 text-left max-h-[80%] ${
+            selectedCategoryForStatsList ? "translate-y-0" : "translate-y-full"
+          }`}>
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold" style={{ color: selectedCategoryForStatsList?.color || "#fff" }}>
+                  {selectedCategoryForStatsList?.icon || "✦"}
+                </span>
+                <span className="text-xs font-bold text-white uppercase tracking-wider">
+                  {selectedCategoryForStatsList?.name || "Категория"}
+                </span>
+                <span className="text-[10px] text-white/30 font-semibold">
+                  ({statsCategoryDeeds.length})
+                </span>
               </div>
+              
+              <button 
+                type="button"
+                onClick={() => setSelectedCategoryForStatsList(null)}
+                className="p-1 text-white/40 hover:text-white rounded-full hover:bg-white/5 active:scale-95 transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-              {/* Deeds List */}
-              <div className="flex-1 overflow-y-auto flex flex-col gap-2.5 pr-1 my-2">
-                {statsCategoryDeeds.map(deed => (
+            {/* Deeds List */}
+            <div className="flex-1 overflow-y-auto flex flex-col gap-2.5 pr-1 my-2">
+              {statsCategoryDeeds.length === 0 ? (
+                <p className="text-xs text-white/40 italic">Нет достижений в этой категории</p>
+              ) : (
+                statsCategoryDeeds.map(deed => (
                   <div 
                     key={deed.id}
                     className="p-3 rounded-xl border border-white/5 bg-white/2 flex flex-col gap-1.5"
-                    style={{ borderLeft: `3px solid ${selectedCategoryForStatsList.color}` }}
+                    style={{ borderLeft: `3px solid ${selectedCategoryForStatsList?.color || "#fff"}` }}
                   >
                     <span className="text-[8px] text-white/40 font-bold">
                       {parseLocalDate(deed.date).toLocaleDateString("ru-RU", { 
@@ -1205,21 +1208,22 @@ export default function Home() {
                       {deed.text}
                     </p>
                   </div>
-                ))}
-              </div>
-
-              {/* Footer */}
-              <div className="pt-2 border-t border-white/5 text-center">
-                <button
-                  onClick={() => setSelectedCategoryForStatsList(null)}
-                  className="w-full py-2 px-4 bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold tracking-widest rounded-xl active:scale-98 transition-all"
-                >
-                  ЗАКРЫТЬ
-                </button>
-              </div>
-
+                ))
+              )}
             </div>
-          )}
+
+            {/* Footer */}
+            <div className="pt-2 border-t border-white/5 text-center">
+              <button
+                type="button"
+                onClick={() => setSelectedCategoryForStatsList(null)}
+                className="w-full py-2 px-4 bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold tracking-widest rounded-xl active:scale-98 transition-all"
+              >
+                ЗАКРЫТЬ
+              </button>
+            </div>
+
+          </div>
         </div>
 
       </div>
