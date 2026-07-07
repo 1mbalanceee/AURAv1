@@ -911,7 +911,16 @@ export default function Home() {
                     return (
                       <div 
                         key={cat.id} 
-                        className="p-3.5 rounded-xl border border-white/5 bg-white/2 flex flex-col justify-between items-start text-left min-h-[90px]"
+                        onClick={() => {
+                          if (count > 0) {
+                            setSelectedCategoryForStatsList(
+                              selectedCategoryForStatsList?.id === cat.id ? null : cat
+                            );
+                          }
+                        }}
+                        className={`p-3.5 rounded-xl border border-white/5 bg-white/2 flex flex-col justify-between items-start text-left min-h-[90px] ${
+                          count > 0 ? "cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all" : "opacity-60"
+                        } ${selectedCategoryForStatsList?.id === cat.id ? "ring-1 ring-white/30 bg-white/5" : ""}`}
                         style={{ borderLeft: `3px solid ${cat.color}` }}
                       >
                         <div className="flex items-center justify-between w-full">
@@ -926,6 +935,49 @@ export default function Home() {
                     );
                   })}
                 </div>
+
+                {/* Inline Category Deeds List */}
+                {selectedCategoryForStatsList && (
+                  <div className="p-4 rounded-xl border border-white/5 bg-white/2 flex flex-col gap-3 transition-all duration-300">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                      <span className="text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5" style={{ color: selectedCategoryForStatsList.color }}>
+                        <span>{selectedCategoryForStatsList.icon}</span>
+                        <span>{selectedCategoryForStatsList.name} ({statsCategoryDeeds.length})</span>
+                      </span>
+                      <button 
+                        type="button"
+                        onClick={() => setSelectedCategoryForStatsList(null)}
+                        className="text-[9px] text-white/30 hover:text-white cursor-pointer"
+                      >
+                        свернуть [x]
+                      </button>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2.5 max-h-[220px] overflow-y-auto pr-1">
+                      {statsCategoryDeeds.length === 0 ? (
+                        <p className="text-xs text-white/40 italic">Нет достижений в этой категории</p>
+                      ) : (
+                        statsCategoryDeeds.map(deed => (
+                          <div 
+                            key={deed.id}
+                            className="p-3 rounded-lg border border-white/5 bg-[#09080f]/50 flex flex-col gap-1 text-left"
+                            style={{ borderLeft: `3px solid ${selectedCategoryForStatsList.color}` }}
+                          >
+                            <span className="text-[8px] text-white/30 font-bold">
+                              {parseLocalDate(deed.date).toLocaleDateString("ru-RU", { 
+                                day: "numeric", 
+                                month: "short"
+                              })}
+                            </span>
+                            <p className="text-xs text-white leading-relaxed font-mono">
+                              {deed.text}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Encouraging Quote for anti-devaluation */}
                 <div className="p-3.5 rounded-xl bg-white/1 border border-white/5 text-center mt-2">
@@ -1156,75 +1208,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 6. STATS CATEGORY DEEDS MODAL */}
-        <div className={`absolute inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 flex items-end justify-center ${
-          selectedCategoryForStatsList ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}>
-          <div className={`w-full max-w-md p-6 bg-[#0c0a18] border-t border-white/10 rounded-t-3xl shadow-[0_-15px_30px_rgba(0,0,0,0.5)] transition-transform duration-300 transform flex flex-col gap-4 text-left max-h-[80%] ${
-            selectedCategoryForStatsList ? "translate-y-0" : "translate-y-full"
-          }`}>
-            
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold" style={{ color: selectedCategoryForStatsList?.color || "#fff" }}>
-                  {selectedCategoryForStatsList?.icon || "✦"}
-                </span>
-                <span className="text-xs font-bold text-white uppercase tracking-wider">
-                  {selectedCategoryForStatsList?.name || "Категория"}
-                </span>
-                <span className="text-[10px] text-white/30 font-semibold">
-                  ({statsCategoryDeeds.length})
-                </span>
-              </div>
-              
-              <button 
-                type="button"
-                onClick={() => setSelectedCategoryForStatsList(null)}
-                className="p-1 text-white/40 hover:text-white rounded-full hover:bg-white/5 active:scale-95 transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            {/* Deeds List */}
-            <div className="flex-1 overflow-y-auto flex flex-col gap-2.5 pr-1 my-2">
-              {statsCategoryDeeds.length === 0 ? (
-                <p className="text-xs text-white/40 italic">Нет достижений в этой категории</p>
-              ) : (
-                statsCategoryDeeds.map(deed => (
-                  <div 
-                    key={deed.id}
-                    className="p-3 rounded-xl border border-white/5 bg-white/2 flex flex-col gap-1.5"
-                    style={{ borderLeft: `3px solid ${selectedCategoryForStatsList?.color || "#fff"}` }}
-                  >
-                    <span className="text-[8px] text-white/40 font-bold">
-                      {parseLocalDate(deed.date).toLocaleDateString("ru-RU", { 
-                        day: "numeric", 
-                        month: "short"
-                      })}
-                    </span>
-                    <p className="text-xs text-white leading-relaxed font-mono">
-                      {deed.text}
-                    </p>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="pt-2 border-t border-white/5 text-center">
-              <button
-                type="button"
-                onClick={() => setSelectedCategoryForStatsList(null)}
-                className="w-full py-2 px-4 bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold tracking-widest rounded-xl active:scale-98 transition-all"
-              >
-                ЗАКРЫТЬ
-              </button>
-            </div>
-
-          </div>
-        </div>
 
       </div>
     </div>
