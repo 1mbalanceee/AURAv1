@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", Courier, monospace;
+  
+  --animate-float: float 8s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 4s ease-in-out infinite;
+  --animate-orbit-1: orbit-1 20s linear infinite;
+  --animate-orbit-2: orbit-2 25s linear infinite;
+  --animate-scanline: scanline 6s linear infinite;
+  --animate-wobble: blob-wobble 8s ease-in-out infinite;
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-12px) rotate(1.5deg);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.75;
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes blob-wobble {
+    0%, 100% {
+      border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+    }
+    33% {
+      border-radius: 70% 30% 52% 48% / 60% 40% 60% 40%;
+    }
+    66% {
+      border-radius: 50% 50% 30% 70% / 40% 60% 40% 60%;
+    }
+  }
+
+  @keyframes orbit-1 {
+    0% { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+    100% { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
+  }
+
+  @keyframes orbit-2 {
+    0% { transform: rotate(180deg) translateX(60px) rotate(-180deg); }
+    100% { transform: rotate(540deg) translateX(60px) rotate(-540deg); }
+  }
+
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+}
+
+:root {
+  --background: #09080f;
+  --foreground: #f4f4f7;
+  --color-purple: #a855f7;
+  --color-yellow: #eab308;
+  --color-green: #22c55e;
+  --color-blue: #3b82f6;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom Scrollbar for list items */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Dreamcore/Webpunk digital grain overlay */
+.grain-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.045;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* CRT Scanline effect */
+.scanline-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.12) 50%,
+    rgba(0, 0, 0, 0.12)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 99;
+  opacity: 0.7;
+}
+
+/* Glow styles for cards and elements */
+.neon-glow-purple {
+  box-shadow: 0 0 15px -3px rgba(168, 85, 247, 0.35), 0 0 6px -2px rgba(168, 85, 247, 0.2);
+}
+.neon-glow-yellow {
+  box-shadow: 0 0 15px -3px rgba(234, 179, 8, 0.35), 0 0 6px -2px rgba(234, 179, 8, 0.2);
+}
+.neon-glow-green {
+  box-shadow: 0 0 15px -3px rgba(34, 197, 94, 0.35), 0 0 6px -2px rgba(34, 197, 94, 0.2);
+}
+.neon-glow-blue {
+  box-shadow: 0 0 15px -3px rgba(59, 130, 246, 0.35), 0 0 6px -2px rgba(59, 130, 246, 0.2);
+}
+.neon-glow-combo {
+  box-shadow: 0 0 20px -3px rgba(168, 85, 247, 0.25), 0 0 20px -3px rgba(59, 130, 246, 0.25);
+}
+.neon-glow-white {
+  box-shadow: 0 0 15px -3px rgba(255, 255, 255, 0.15), 0 0 6px -2px rgba(255, 255, 255, 0.1);
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-interactive {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-interactive:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.glass-interactive:active {
+  background: rgba(255, 255, 255, 0.02);
+  transform: scale(0.98);
+}
