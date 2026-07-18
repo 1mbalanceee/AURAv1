@@ -17,3 +17,19 @@ export interface MonthDayStats {
   deedsCount: number;
   dominantCategoryIds: string[];
 }
+
+export interface QWeeklyReport {
+  id: string;
+  weekRange: string; // Например, "05.07 - 12.07"
+  status: 'completed' | 'skipped';
+  mainVictory: string;
+  failuresReason: string;
+  energyLevel: string; // Например, "7/8"
+  metrics: {
+    applications: number;
+    responses: string;
+  };
+  insights: string[]; // Несколько идей/наблюдений
+  nextWeekFocus: string[]; // Строго 3 фокус-задачи
+}
+

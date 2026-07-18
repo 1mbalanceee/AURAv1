@@ -9,6 +9,30 @@
   --animate-orbit-2: orbit-2 25s linear infinite;
   --animate-scanline: scanline 6s linear infinite;
   --animate-wobble: blob-wobble 8s ease-in-out infinite;
+  --animate-glitch: glitch 1.5s steps(2) infinite;
+
+  @keyframes glitch {
+    0%, 100% {
+      transform: translate(0);
+      text-shadow: 1px 0px red, -1px 0px blue;
+    }
+    20% {
+      transform: translate(-1px, 1px);
+      text-shadow: -1px -1px red, 1px 1px blue;
+    }
+    40% {
+      transform: translate(1px, -1px);
+      text-shadow: 1px -1px red, -1px 1px blue;
+    }
+    60% {
+      transform: translate(-1px, -1px);
+      text-shadow: 2px 0px red, -2px 0px blue;
+    }
+    80% {
+      transform: translate(1px, 1px);
+      text-shadow: -2px 1px red, 2px -1px blue;
+    }
+  }
 
   @keyframes float {
     0%, 100% {
